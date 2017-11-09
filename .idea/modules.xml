@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/AOPObservable.iml" filepath="$PROJECT_DIR$/AOPObservable.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/aspect/aspect.iml" filepath="$PROJECT_DIR$/aspect/aspect.iml" />
     </modules>
   </component>
 </project>

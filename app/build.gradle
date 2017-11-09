@@ -1,4 +1,19 @@
+buildscript {
+    dependencies {
+        repositories {
+            mavenCentral()
+
+            // NOTE: This is only needed when developing the plugin!
+            mavenLocal()
+        }
+
+        classpath 'com.android.tools.build:gradle:3.0.0'
+        classpath 'com.jakewharton.hugo:hugo-plugin:1.2.1'
+    }
+}
+
 apply plugin: 'com.android.application'
+apply plugin: 'hugo'
 
 android {
     compileSdkVersion 26
@@ -19,8 +34,13 @@ android {
 }
 
 dependencies {
+    repositories {
+        mavenCentral()
+    }
+
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+    compile project(":aspect")
 }
