@@ -13,12 +13,17 @@ import java.util.Observable;
 import java.util.Set;
 
 public class Dispatchers {
+  private static final ThreadLocal<Dispatchers.Dispatcher> sDispatcher = new ThreadLocal<>();
+
   public static Dispatcher get() {
-    if (Looper.myLooper() == null) {
-      return new DirectDispatcher();
-    } else {
-      return new LooperDispatcher(Looper.myLooper());
+    if (sDispatcher.get() == null) {
+      if (Looper.myLooper() == null) {
+        sDispatcher.set(new DirectDispatcher());
+      } else {
+        sDispatcher.set(new LooperDispatcher(Looper.myLooper()));
+      }
     }
+    return sDispatcher.get();
   }
 
   public interface Dispatcher {
@@ -29,7 +34,7 @@ public class Dispatchers {
 
   static {
     try {
-      sSetChanged = Observable.class.getMethod("setChanged");
+      sSetChanged = Observable.class.getDeclaredMethod("setChanged");
       sSetChanged.setAccessible(true);
     } catch (NoSuchMethodException e) {
       e.printStackTrace();
@@ -83,7 +88,20 @@ public class Dispatchers {
 
     @Override
     public void notifyDataChanged(Observable observable, Object invoker) {
-      observable.notifyObservers(invoker);
+      boolean changed = false;
+      if (sSetChanged != null) {
+        try {
+          sSetChanged.invoke(observable);
+          changed = true;
+        } catch (IllegalAccessException e) {
+          e.printStackTrace();
+        } catch (InvocationTargetException e) {
+          e.printStackTrace();
+        }
+      }
+      if (changed) {
+        observable.notifyObservers(invoker);
+      }
     }
   }
 }

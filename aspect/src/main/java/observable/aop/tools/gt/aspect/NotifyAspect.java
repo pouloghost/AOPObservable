@@ -10,10 +10,10 @@ import java.util.Observable;
 
 @Aspect
 public class NotifyAspect {
-  private static final ThreadLocal<Dispatchers.Dispatcher> sDispatcher = new ThreadLocal<>();
 
   @Pointcut("target(java.util.Observable+) " +
-      "&& !within(@observable.aop.tools.gt.aspect.IgnoredInvoker *)")
+      "&& !within(@observable.aop.tools.gt.aspect.IgnoredInvoker *)" +
+      "&& !withincode(@observable.aop.tools.gt.aspect.IgnoredInvoker * *(..))")
   public void observableClass() {
   }
 
@@ -24,9 +24,6 @@ public class NotifyAspect {
   @After("observableField() && target(me) && this(invoker)")
   public void onSet(Object me, Object invoker) {
     Log.e("aop", "observed by aop");
-    if (sDispatcher.get() == null) {
-      sDispatcher.set(Dispatchers.get());
-    }
-    sDispatcher.get().notifyDataChanged((Observable) me, invoker);
+    Dispatchers.get().notifyDataChanged((Observable) me, invoker);
   }
 }
