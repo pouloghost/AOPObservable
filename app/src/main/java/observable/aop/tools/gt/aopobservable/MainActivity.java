@@ -12,11 +12,23 @@ import observable.aop.tools.gt.aspect.IgnoredInvoker;
 
 public class MainActivity extends Activity {
 
+  // 避免被释放
+  private User mLooperUser = new User();
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    final User user = new User();
-    user.addObserver(new Observer() {
+    mLooperUser.addObserver(new Observer() {
+      @Override
+      public void update(Observable observable, Object o) {
+        Log.e("aop", observable + " changed by " + o);
+      }
+    });
+    // 直接修改，AOP通知
+    mLooperUser.mName = "looper";
+    Log.e("aop", "after changed");
+    final User threadUser = new User();
+    threadUser.addObserver(new Observer() {
       @Override
       public void update(Observable observable, Object o) {
         Log.e("aop", observable + " changed by " + o);
@@ -24,13 +36,16 @@ public class MainActivity extends Activity {
     });
     new Thread() {
       @Override
+      // 必须是方法最近的annotation
       @IgnoredInvoker
       public void run() {
         super.run();
-        user.mName = "lalala";
-        user.mGender = 1;
+        // 不会AOP
+        threadUser.mName = "thread";
+        threadUser.mGender = 1;
         Log.e("aop", "after changed");
-        Dispatchers.get().notifyDataChanged(user, MainActivity.this);
+        // 手动触发
+        Dispatchers.get().notifyDataChanged(threadUser, MainActivity.this);
       }
     }.start();
   }

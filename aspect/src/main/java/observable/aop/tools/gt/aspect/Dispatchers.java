@@ -3,6 +3,7 @@ package observable.aop.tools.gt.aspect;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 import android.util.Pair;
 
 import java.lang.ref.WeakReference;
@@ -13,6 +14,7 @@ import java.util.Observable;
 import java.util.Set;
 
 public class Dispatchers {
+  public static boolean DO_LOG = true;
   private static final ThreadLocal<Dispatchers.Dispatcher> sDispatcher = new ThreadLocal<>();
 
   public static Dispatcher get() {
@@ -54,7 +56,10 @@ public class Dispatchers {
             for (WeakReference<Pair<Observable, Object>> pack : mChangedObservables) {
               Pair<Observable, Object> pair = pack.get();
               if (pair != null) {
+                log("real dispatch in looper" + pair.first + " by " + pair.second);
                 pair.first.notifyObservers(pair.second);
+              } else {
+                log("empty pair");
               }
             }
           }
@@ -65,6 +70,7 @@ public class Dispatchers {
 
     @Override
     public void notifyDataChanged(Observable observable, Object invoker) {
+      log("dispatch in looper " + observable);
       boolean changed = false;
       if (sSetChanged != null) {
         try {
@@ -80,6 +86,7 @@ public class Dispatchers {
         mChangedObservables.add(new WeakReference<>(new Pair<>(observable, invoker)));
         mHandler.removeMessages(sDISPATCH_ALL);
         mHandler.sendEmptyMessage(sDISPATCH_ALL);
+        log("dispatched in looper " + observable);
       }
     }
   }
@@ -88,6 +95,7 @@ public class Dispatchers {
 
     @Override
     public void notifyDataChanged(Observable observable, Object invoker) {
+      log("dispatch directly " + observable);
       boolean changed = false;
       if (sSetChanged != null) {
         try {
@@ -101,7 +109,15 @@ public class Dispatchers {
       }
       if (changed) {
         observable.notifyObservers(invoker);
+        log("dispatched directly " + observable);
       }
     }
+  }
+
+  private static final void log(String message) {
+    if (!DO_LOG) {
+      return;
+    }
+    Log.d("aop", message);
   }
 }
