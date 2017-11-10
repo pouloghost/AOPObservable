@@ -20,4 +20,4 @@ AOPObservable使用AOP方式（aspectj）切入所有Observable的field赋值调
 - Observer#update的第二个参数，会被设置为修改Observable的类，所谓invoker
 - 运行默认带有日志，去掉日志需要修改Dispatchers#DO_LOG
 
-
+[简单原理说明](http://blog.csdn.net/pouloghost/article/details/78499943)
