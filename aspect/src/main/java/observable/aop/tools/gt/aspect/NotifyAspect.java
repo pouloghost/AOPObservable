@@ -18,7 +18,8 @@ public class NotifyAspect {
   public void ignoredMethod() {
   }
 
-  @Pointcut("observableClass() && !ignoredMethod() && set(* *)")
+  @Pointcut("observableClass() && !ignoredMethod() && " +
+      "set(!@observable.aop.tools.gt.aspect.IgnoreField * *)")
   public void observableField() {
   }
 
